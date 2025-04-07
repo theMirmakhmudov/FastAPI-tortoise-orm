@@ -1,4 +1,3 @@
-import os
 from tortoise import Tortoise
 from config import get_settings
 
