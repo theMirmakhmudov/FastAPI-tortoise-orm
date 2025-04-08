@@ -1,13 +1,37 @@
-import asyncio
+from fastapi import FastAPI
 from db import init_db
-from tortoise import Tortoise
+from config import get_settings
+from schemas.user import BaseUser
+from schemas.base import BaseResponse
+from models.user import User
+
+settings = get_settings()
+
+app = FastAPI(
+    title=settings.app_name,
+    version=settings.app_version,
+    description="FastAPI CRUD Tortoise-orm with aerich",
+    debug=settings.app_debug,
+)
 
 
-async def main():
+@app.on_event("startup")
+async def startup():
     await init_db()
     print("DB Connected ✅")
-    await Tortoise.close_connections()
 
 
-if __name__ == "__main__":
-    asyncio.run(main())
+@app.post("/user", response_model=BaseResponse)
+async def create_user(user: BaseUser):
+    user_data = await User.create(
+        name=user.name,
+        email=user.email,
+        username=user.username
+    )
+
+    data = {
+        "name": user_data.name,
+        "email": user_data.email,
+        "username": user_data.username
+    }
+    return BaseResponse(data=data)
