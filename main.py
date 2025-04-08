@@ -35,3 +35,18 @@ async def create_user(user: BaseUser):
         "username": user_data.username
     }
     return BaseResponse(data=data)
+
+@app.get("/users", response_model=BaseResponse)
+async def get_all_users():
+    users_data = await User.all()
+    users = []
+    for user in users_data:
+        data = {
+            "id": user.id,
+            "name": user.name,
+            "email": user.email,
+            "username": user.username
+        }
+        users.append(data)
+    return BaseResponse(data=users)
+
