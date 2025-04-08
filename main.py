@@ -21,7 +21,7 @@ async def startup():
     print("DB Connected ✅")
 
 
-@app.post("/user", response_model=BaseResponse)
+@app.post("/user/create", response_model=BaseResponse)
 async def create_user(user: BaseUser):
     user_data = await User.create(
         name=user.name,
@@ -35,6 +35,7 @@ async def create_user(user: BaseUser):
         "username": user_data.username
     }
     return BaseResponse(data=data)
+
 
 @app.get("/users", response_model=BaseResponse)
 async def get_all_users():
@@ -50,3 +51,35 @@ async def get_all_users():
         users.append(data)
     return BaseResponse(data=users)
 
+
+@app.get("/user/{user_id}", response_model=BaseResponse)
+async def get_user_detail(user_id: int):
+    user_detail = await User.get(id=user_id)
+    data = {
+        "name": user_detail.name,
+        "email": user_detail.email,
+        "username": user_detail.username
+    }
+
+    return BaseResponse(data=data)
+
+
+@app.put("/user/update/{user_id}", response_model=BaseResponse)
+async def user_update(user_id: int, user: BaseUser):
+    user_detail = await User.get(id=user_id)
+    user_detail.name = user.name
+    user_detail.email = user.email
+    user_detail.username = user.username
+    await user_detail.save()
+    data = {
+        "name": user.name,
+        "email": user.email,
+        "username": user.username
+    }
+    return BaseResponse(data=data)
+
+@app.delete("/user/delete/{user_id}", response_model=BaseResponse)
+async def user_delete(user_id: int):
+    user = await User.get(id=user_id)
+    await user.delete()
+    return BaseResponse()
