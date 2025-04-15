@@ -20,6 +20,9 @@ async def startup():
     await init_db()
     print("DB Connected ✅")
 
+@app.get("/apps")
+async def apps_ts():
+    return {"message": "apps"}
 
 @app.post("/user/create", response_model=BaseResponse)
 async def create_user(user: BaseUser):
